@@ -4,137 +4,176 @@
 #include <iomanip>
 using namespace std;
 
+// Base class User
 class User {
 protected:
-    string username, password;
-    float balance;
+    string username, password;  // Username and password for the user
+    float balance;              // Account balance
 public:
-    User() : balance(0.0) {}
-    virtual void menu() = 0;
-    string getUsername() { return username; }
+    User() : balance(0.0) {}     // Default constructor initializing balance to 0.0
+    virtual void menu() = 0;     // Pure virtual function for menu, implemented by derived classes
+    string getUsername() { return username; }  // Getter for username
+
+    // Login function to verify credentials
     bool login(string u, string p) {
-        return (u == username && p == password);
+        return (u == username && p == password);  // Returns true if username and password match
     }
 };
 
+// Derived class Customer
 class Customer : public User {
-    float fdAmount;
-    float loanAmount;
+    float fdAmount;    // Fixed deposit amount
+    float loanAmount;  // Loan amount
 public:
+    // Constructor to initialize a customer with username, password, and balance
     Customer(string u, string p) {
         username = u;
         password = p;
-        balance = 0.0;
-        fdAmount = 0.0;
-        loanAmount = 0.0;
+        balance = 0.0;  // Initial balance is 0.0
+        fdAmount = 0.0; // Initially, no fixed deposit
+        loanAmount = 0.0; // Initially, no loan
     }
 
+    // Overridden menu function for customer-specific operations
     void menu() override {
         int choice;
         do {
+            // Displaying customer menu options
             cout << "\n[Customer] " << username << "'s Menu\n";
             cout << "1. Check Balance\n2. Deposit\n3. Withdraw\n4. Fixed Deposit\n5. Apply Loan\n6. Logout\nChoice: ";
-            cin >> choice;
+            cin >> choice;  // Taking customer input for menu choice
+
+            // Switch case for customer operations
             switch (choice) {
-                case 1: cout << "Current Balance: Rs." << balance << endl; break;
-                case 2: {
-                    float amt; cout << "Deposit Amount: Rs."; cin >> amt;
-                    balance += amt; cout << "Deposited Successfully.\n"; break;
-                }
-                case 3: {
-                    float amt; cout << "Withdraw Amount: Rs."; cin >> amt;
-                    if (amt <= balance) { balance -= amt; cout << "Withdrawn.\n"; }
-                    else cout << "Insufficient balance.\n";
+                case 1: 
+                    cout << "Current Balance: Rs." << balance << endl; // Show balance
+                    break;
+                case 2: { 
+                    float amt; 
+                    cout << "Deposit Amount: Rs."; 
+                    cin >> amt;   // Taking deposit amount as input
+                    balance += amt;  // Add deposit to balance
+                    cout << "Deposited Successfully.\n"; 
                     break;
                 }
-                case 4: {
-                    float amt; cout << "FD Amount: Rs."; cin >> amt;
+                case 3: { 
+                    float amt; 
+                    cout << "Withdraw Amount: Rs."; 
+                    cin >> amt;   // Taking withdrawal amount as input
+                    if (amt <= balance) { 
+                        balance -= amt; 
+                        cout << "Withdrawn.\n"; // Update balance after withdrawal
+                    }
+                    else cout << "Insufficient balance.\n";  // Insufficient balance error
+                    break;
+                }
+                case 4: { 
+                    float amt; 
+                    cout << "FD Amount: Rs."; 
+                    cin >> amt;  // Taking Fixed Deposit amount as input
                     if (amt <= balance) {
-                        fdAmount += amt;
-                        balance -= amt;
+                        fdAmount += amt;  // Update fixed deposit amount
+                        balance -= amt;  // Deduct from balance
                         cout << "FD of Rs." << amt << " created.\n";
-                    } else cout << "Insufficient balance.\n";
+                    } else cout << "Insufficient balance.\n";  // Insufficient balance error
                     break;
                 }
-                case 5: {
-                    float amt; cout << "Loan Amount: Rs."; cin >> amt;
-                    loanAmount += amt;
-                    cout << "Loan Request Submitted.\n";
+                case 5: { 
+                    float amt; 
+                    cout << "Loan Amount: Rs."; 
+                    cin >> amt;  // Taking loan amount as input
+                    loanAmount += amt;  // Update loan amount
+                    cout << "Loan Request Submitted.\n";  // Loan request confirmation
                     break;
                 }
-                case 6: cout << "Logging out...\n"; break;
-                default: cout << "Invalid!\n";
+                case 6: 
+                    cout << "Logging out...\n";  // Logout operation
+                    break;
+                default: 
+                    cout << "Invalid!\n";  // Invalid choice error
             }
-        } while (choice != 6);
+        } while (choice != 6);  // Loop continues until the user selects logout option (6)
     }
 };
 
+// Derived class Admin
 class Admin : public User {
 public:
+    // Constructor initializing admin's default username and password
     Admin() {
         username = "admin";
         password = "admin123";
     }
 
+    // Overridden menu function for admin-specific operations
     void menu() override {
         cout << "\n[Admin] Welcome, Admin!\n";
-        cout << "(In full version: View all users, Approve loans, etc.)\n";
+        cout << "(In full version: View all users, Approve loans, etc.)\n";  // Placeholder message
     }
 };
 
+// Bank system class to manage customers and admin operations
 class BankSystem {
-    vector<Customer> customers;
-    Admin admin;
+    vector<Customer> customers;  // List of customers
+    Admin admin;  // Single admin instance
 
+    // Function to save customer data to file
     void saveToFile() {
-        ofstream fout("users.txt");
-        for (auto &c : customers) {
-            fout << c.getUsername() << endl;
+        ofstream fout("users.txt");  // Open file for writing
+        for (auto &c : customers) {  // Iterate over customers
+            fout << c.getUsername() << endl;  // Save each customer's username
         }
-        fout.close();
+        fout.close();  // Close the file
     }
 
 public:
+    // Function to run the bank system
     void run() {
         int choice;
         do {
+            // Displaying main menu
             cout << "\n--- Welcome to CLI Bank ---\n";
             cout << "1. Register\n2. Login as Customer\n3. Login as Admin\n4. Exit\nChoice: ";
             cin >> choice;
+
             if (choice == 1) {
+                // Register new customer
                 string u, p;
                 cout << "Choose Username: "; cin >> u;
                 cout << "Choose Password: "; cin >> p;
-                customers.push_back(Customer(u, p));
+                customers.push_back(Customer(u, p));  // Add new customer to the list
                 cout << "Registration Successful!\n";
-                saveToFile();
+                saveToFile();  // Save customer data to file
             } else if (choice == 2) {
+                // Customer login
                 string u, p;
                 cout << "Username: "; cin >> u;
                 cout << "Password: "; cin >> p;
                 bool found = false;
                 for (auto &c : customers) {
-                    if (c.login(u, p)) {
-                        c.menu();
+                    if (c.login(u, p)) {  // Check if login credentials match
+                        c.menu();  // Show customer menu if login is successful
                         found = true;
                         break;
                     }
                 }
-                if (!found) cout << "Login Failed.\n";
+                if (!found) cout << "Login Failed.\n";  // Login failure message
             } else if (choice == 3) {
+                // Admin login
                 string u, p;
                 cout << "Admin Username: "; cin >> u;
                 cout << "Admin Password: "; cin >> p;
-                if (admin.login(u, p)) admin.menu();
-                else cout << "Invalid Admin Credentials.\n";
+                if (admin.login(u, p)) admin.menu();  // If admin login is successful, show admin menu
+                else cout << "Invalid Admin Credentials.\n";  // Admin login failure message
             }
-        } while (choice != 4);
-        cout << "Thank you for using CLI Bank.\n";
+        } while (choice != 4);  // Loop continues until user selects Exit option (4)
+        cout << "Thank you for using CLI Bank.\n";  // Exit message
     }
 };
 
 int main() {
-    BankSystem bank;
-    bank.run();
-    return 0;
+    BankSystem bank;  // Create an instance of BankSystem
+    bank.run();  // Run the bank system
+    return 0;  // End of the program
 }
+
